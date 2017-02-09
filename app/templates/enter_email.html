@@ -1,0 +1,25 @@
+{% extends 'header.html' %}
+
+
+<body>
+{% block body %}
+
+<head>
+	<title>Forgot Password</title>
+</head>
+
+<br>
+<div align="middle" class = "container">
+
+  {% from "_formhelpers.html" import render_field %}
+  <form method=post action="/enter_email/">
+    <dl>
+      {{render_field(form.email)}}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value=Submit></p>
+  </form>
+</div>
+{% endblock %}
+</body>
+
+</html>

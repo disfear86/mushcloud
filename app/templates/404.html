@@ -1,0 +1,21 @@
+{% extends 'header.html' %}
+{% block body %}
+
+<head>
+	<title>404 Page Not Found</title>
+</head>
+
+<font color='navy' face='VERDANA' size="30px">
+<p align=center font-size='40px' text-color='blue'>Woops, that page doesn't exist! (404)
+</font>
+
+<div align="center">
+<button onclick="goBack()" class="btn btn-primary">Go Back</button>
+</div>
+
+<script>
+function goBack() {
+    window.history.back();
+}
+</script>
+{% endblock %}

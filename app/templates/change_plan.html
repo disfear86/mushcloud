@@ -1,0 +1,45 @@
+{% extends 'header.html' %}
+
+<body>
+	{% block body %}
+<head>
+	<title>Settings</title>
+</head>
+
+<div class="jumbotron">
+	<div align="center" class ="container">
+		<h2>Upgrade Plan</h2>
+        <br>
+		<form method="post" action="/change_plan/">
+		  <label class="radio-inline">
+		    <input style="margin-left:-0.4em;" type="radio" name="options" id="optionsRadios1" value="5000" checked>
+		    <br>5 GB
+		  </label>
+		  <label class="radio-inline">
+		    <input style="margin-left:-0.4em;" type="radio" name="options" id="optionsRadios2" value="10000">
+		    <br>10 GB
+		  </label>
+		  <label class="radio-inline">
+		    <input style="margin-left:-0.4em;" type="radio" name="options" id="optionsRadios3" value="20000">
+		    <br>20 GB
+		  </label>
+		  <br>
+		  <button style="margin-top:0.4em;" type="submit" class="btn btn-primary">Upgrade</button>
+
+	  </form>
+	</div>
+</div>
+
+<div align="center">
+<button onclick="goBack()" class="btn btn-primary">Go Back</button>
+</div>
+<script>
+function goBack() {
+	window.history.back();
+}
+</script>
+
+{% endblock %}
+</body>
+
+</html>

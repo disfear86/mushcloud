@@ -1,0 +1,70 @@
+{% extends 'header.html' %}
+
+<html>
+<body style="padding-bottom: 60;">
+{% block body %}
+
+<head>
+	<link rel="stylesheet" href="{{ url_for('static',
+	filename='css/style.css') }}">
+	<title>Search</title>
+
+</head>
+
+<table align="center" class="table table-hover table-condensed" style="max-width:70%";>
+  <tr class="active" style="width:20em;">
+	  	<th style="width:20em;">File</th>
+		<th style="width:20em;">Folder</th>
+  </tr>
+{% if data != 'No results found.' %}
+	{% for item in data %}
+
+	<tr>
+	   <td class="dat">
+
+		 <a href="/home/{{item[2]}}">{{item[0]}}</a>
+	   </td>
+
+	 	<td class="dat">
+			{% if item[2] == item[0] %}
+				<b>Main Folder</b>
+			{% else %}
+				<b>{{item[2]}}</b>
+			{% endif %}
+	 	</td>
+	 </tr>
+	 {% endfor %}
+
+	<tr>
+		<td class="dat">
+			
+		</td>
+		<td class="dat">
+			
+		</td>
+	</tr>
+
+	{% else %}
+	<tr>
+	   <td class="dat">
+		   {{data}}
+	   </td>
+	   <td class="dat">
+
+	   </td>
+	 </tr>
+{% endif %}
+</table>
+
+<div align="center">
+<button onclick="goBack()" class="btn btn-primary">Go Back</button>
+</div>
+<script>
+function goBack() {
+	window.history.back();
+}
+</script>
+
+{% endblock %}
+</body>
+</html>

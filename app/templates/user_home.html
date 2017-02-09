@@ -1,0 +1,184 @@
+{% extends 'header.html' %}
+
+<html>
+{% block body %}
+
+<head>
+	<link rel="stylesheet" href="{{ url_for('static',
+	filename='css/style.css') }}">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type=text/javascript>
+  		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	</script>
+	<script src="{{ url_for('static',
+	filename='js/delete.js') }}"></script>
+	<script src="{{ url_for('static',
+	filename='js/rename.js') }}"></script>
+	<script src="{{ url_for('static',
+	filename='js/interval.js') }}"></script>
+	<script src="{{ url_for('static',
+	filename='js/download.js') }}"></script>
+	<script>
+		var js_folder = '{{ folder }}';
+	</script>
+	<script src="{{ url_for('static',
+	filename='js/progress.js') }}"></script>
+
+	<title>Home</title>
+
+</head>
+<body style="padding-bottom: 60;">
+
+{% if user_plan_left < 300 %}
+<div class="progress" style="width:70%; margin: 0 auto;" style="background:red">
+  <div class="progress-bar" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100" style="width: {{percent}}; min-width:10%;background:red">
+    {{user_bar_data}}
+  </div>
+</div>
+{% else %}
+<div class="progress" style="width:70%; margin: 0 auto;" style="background:red">
+  <div class="progress-bar" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100" style="width: {{percent}}; min-width:10%;">
+    {{user_bar_data}}
+  </div>
+</div>
+{% endif %}
+
+<div class="progress" style="width:40%; margin: 0 auto; margin-top:1em; display: none;">
+  <div id="ProgressBar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width:10%;">
+    <span class="sr-only">0%</span>
+  </div>
+</div>
+
+<table align="center" class="table table-hover table-condensed" style="max-width:70%; margin-top: 10px;">
+	<tr>
+		<td class="dat">
+			<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse"
+			href="#collapse1" aria-expanded="false" aria-controls="collapse1">
+				<span class= "glyphicon glyphicon-upload"></span> Upload File
+			</a>
+			<div class="collapse" id="collapse1">
+  				<div class="well" style="max-width:21em;">
+					<form action="" method=post enctype=multipart/form-data id="upload">
+				      <p><input type=file name="newfile" id="file_picker">
+				         <input id="fileupload" type="submit" value=Upload class="btn btn-primary btn-xs" style="margin-top:2px;">
+				    </form>
+  				</div>
+			</div>
+		</td>
+		<th style="width:40%; padding-left:3em;">
+			<a class="btn btn-primary btn-xs" role="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+  				<img class= "invert" style="margin-right: 2px; margin-bottom: 2px;" src="{{ url_for('static', filename='images/050-folder-plus.png') }}"> Create Folder
+			</a>
+			<div class="collapse" id="collapseExample">
+    				<form class="form-inline" method="post">
+					    <input type="text" class="form-control" id="InputName" style="max-height:1.5em; max-width: 10em;" name="newfolder" value="">
+					  		 <button type="submit" class="btn btn-primary btn-xs">Create</button>
+					</form>
+			</div>
+		</th>
+		<th></th>
+  	</tr>
+ </table>
+ <table align="center" class="table table-hover table-condensed" style="max-width:70%";>
+  	<tr class="active" style="width:20em;">
+	  	<th class="dat">File
+	  	<th style="padding-left:5em">Date Added
+  	</tr>
+	{% for dir in alldirs %}
+	<tr>
+  		<td class="dat"><a href="{{ dir[0] }}" id="td1"><span class="glyphicon glyphicon-folder-open"></span> {{ dir[0] }}</a>
+			<form class="form-inline" method="post" action="">
+				<input type=text class="form-control" style="display:none" id="sub_data" name="new_data" value="{{request.form.new_data}}"></input>
+			 	<input id="sub" type="submit" class="btn btn-primary btn-xs" style="display:none"></input>
+			</form>
+		</td>
+  		<td>
+			&emsp;&ensp;
+			<a href="#" id='ren_button' style="margin-right:5px;"  data-toggle="tooltip" title="Rename">
+  				<span class= "glyphicon glyphicon-pencil"></span>
+			</a>
+			<a href="" id='del_button' style="margin-right:5px;"  data-toggle="tooltip" title="Delete">
+				<span class="glyphicon glyphicon-trash"></span>
+			</a>
+			{{ dir[1] }}
+		</td>
+  	</tr>
+	{% endfor %}
+
+	{% for file in allfiles %}
+  	<tr>
+		{% if file[1] == 'jpg' or file[1] == 'JPG' or file[1] == 'jpeg' or file[1] == 'png' %}
+		<td class="dat"><a href="{{ file[0] }}" id="td1"><span class="glyphicon glyphicon-picture"></span> {{ file[3] }} </a>
+			<form class="form-inline" method="post" action="">
+				<input type=text class="form-control" style="display:none" id="sub_data" name="new_data" value="{{request.form.new_data}}"></input>
+				<input id="sub" type="submit" class="btn btn-primary btn-xs" style="display:none"></input>
+			</form>
+		</td>
+		{% elif file[1] == 'zip' or file[1] == 'rar' %}
+		<td class="dat"><a href="{{ file[0] }}" id="td1"><span class="glyphicon glyphicon-compressed"></span> {{ file[3] }} </a>
+			<form class="form-inline" method="post" action="">
+				<input type=text class="form-control" style="display:none" id="sub_data" name="new_data" value="{{request.form.new_data}}"></input>
+			 	<input id="sub" type="submit" class="btn btn-primary btn-xs" style="display:none"></input>
+			</form>
+		</td>
+		{% elif file[1] == 'mp3' or file[1] == 'wav' or file[1] == 'flac' %}
+		<td class="dat"><a href="{{ file[0] }}" id="td1"><span class="glyphicon glyphicon-music"></span> {{ file[3] }} </a>
+			<form class="form-inline" method="post" action="">
+				<input type=text class="form-control" style="display:none" id="sub_data" name="new_data" value="{{request.form.new_data}}"></input>
+			 	<input id="sub" type="submit" class="btn btn-primary btn-xs" style="display:none"></input>
+			</form>
+		</td>
+		{% elif file[1] == 'mkv' or file[1] == 'mpeg' or file[1] == 'mov' or file[1] == 'mp4'  %}
+		<td class="dat"><a href="{{ file[0] }}" id="td1"><span class="glyphicon glyphicon-facetime-video"></span> {{ file[3] }} </a>
+			<form class="form-inline" method="post" action="">
+				<input type=text class="form-control" style="display:none" id="sub_data" name="new_data" value="{{request.form.new_data}}"></input>
+			 	<input id="sub" type="submit" class="btn btn-primary btn-xs" style="display:none"></input>
+			</form>
+		</td>
+		{% else %}
+		<td class="dat"><a href="{{ file[0] }}" id="td1"><span class="glyphicon glyphicon-file"></span> {{ file[3] }} </a>
+			<form class="form-inline" method="post" action="">
+				<input type=text class="form-control" style="display:none" id="sub_data" name="new_data" value="{{request.form.new_data}}"></input>
+				<input id="sub" type="submit" class="btn btn-primary btn-xs" style="display:none"></input>
+			</form>
+		</td>
+		{% endif %}
+
+		<td>
+			<a href="{{ file[0] }}" download style="margin-right:5px;" data-toggle="tooltip" title="Download">
+  				<span class= "glyphicon glyphicon-download-alt"></span>
+
+			<a href="#" id='ren_button' action="/_rename/" style="margin-right:5px;" data-toggle="tooltip" title="Rename">
+  				<span class= "glyphicon glyphicon-pencil"></span>
+			</a>
+
+			<a href="" id='del_button' action="/_delete/" style="margin-right:5px;" data-toggle="tooltip" title="Delete">
+				<span class="glyphicon glyphicon-trash"></span>
+			</a>
+
+		 	{{ file[2] }}
+		</td>
+  	</tr>
+	{% endfor %}
+</table>
+
+{% if not alldirs and not allfiles %}
+ <div class="container" style="text-align: center;">
+	 <img style="max-width:40%; max-height:40%;" src="{{ url_for('static', filename='images/empyfolder.png') }}">
+</div>
+{% endif %}
+
+{% if folder %}
+	<div align="center">
+	<button onclick="goBack()" class="btn btn-primary">Go Back</button>
+	</div>
+	<script>
+	function goBack() {
+		window.history.back();
+	}
+	</script>
+{% endif %}
+
+{% endblock %}
+</body>
+</html>
