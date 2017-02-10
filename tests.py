@@ -5,16 +5,20 @@ from app.alchemy import User
 from app import app, db
 from config import basedir
 from coverage import Coverage
+from flask_login import current_user
+from flask import request, session
+from app.auth import registration, log_in
 
 cov = Coverage(source=['app'], branch=True)
 cov.start()
 
 
-class TestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:D@kis886848@localhost/mush_test_testing'
-        self.app = app.test_client()
+        app.config.from_object('config')
+        self.app = app
+        self.client = self.app.test_client()
         db.create_all()
 
     def tearDown(self):
@@ -26,10 +30,38 @@ class TestCase(unittest.TestCase):
         db.session.add(user)
         db.session.commit()
         assert user in db.session
-'''
-    def test_reg(self):
-        pass
 
+
+class TestCase(BaseTestCase):
+    def test_registration(self):
+        with self.client:
+            response = self.client.post('register/', data=dict(
+                username='mushcloud', email='mushcloud@mushcloud.com',
+                password='mushpass', confirm='mushpass'
+            ), follow_redirects=True)
+
+            registration(username='mushcloud', email='mushcloud@mushcloud.com',
+                            password='mushpass', form=None)
+            #self.assertIn(b'Registration Successful.', response.data)
+            user = User.query.filter_by(email='mushcloud@mushcloud.com').first()
+            self.assertTrue(user.username == "mushcloud")
+            self.assertTrue(str(user) == '<User mushcloud>')
+
+    def test_login(self):
+        with self.client:
+            response = self.client.post('login_page/', data=dict(
+                                    username='mushcloud',
+                                    password='mushpass',
+                                ), follow_redirects=True)
+
+            log_in('mushcloud', 'mushpass')
+            assert 'logged_in' in session
+            user = User.query.filter_by(username='mushcloud').first()
+            self.assertTrue(user.username == "mushcloud")
+            self.assertTrue(str(user) == '<User mushcloud>')
+
+
+'''
     def test_login(self):
         pass
 
