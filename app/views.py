@@ -13,6 +13,8 @@ from app.file_handling import check_which_folder, ListAll, CreateDir, \
                                     Rename, Upload, Delete
 import os
 from os.path import isdir
+from .forms import RegistrationForm, LoginForm
+from passlib.hash import sha256_crypt
 
 
 main_path = app.config['USER_STORAGE_PATH']
@@ -29,6 +31,7 @@ def file_size(files):
         size /= 1000
         return "{0:.2f}".format(size) + ' KB'
 
+
 ###################################
 # create class variables to pass  #
 # delete and rename data          #
@@ -41,6 +44,7 @@ class RenData(object):
     ren_data = ''
 #                                 #
 ###################################
+
 
 @app.route('/')
 def homepage():
@@ -86,14 +90,25 @@ def change_plan():
 def register():
     if 'logged_in' in session:
         return redirect(url_for('user_home'))
-    return registration()
+    form = RegistrationForm(request.form)
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        email = form.email.data
+        password = sha256_crypt.encrypt(form.password.data)
+        return registration(username, email, password, form)
+    return render_template('register.html', form=form)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login_page():
     if 'logged_in' in session:
         return redirect(url_for('user_home'))
-    return log_in()
+    form = LoginForm(request.form)
+    if request.method == "POST" and form.validate():
+        user_submit = request.form['username']
+        password = request.form['password']
+        return log_in(user_submit, password)
+    return render_template("login.html", form=form)
 
 
 @app.route('/_delete/', methods=['GET', 'POST'])
