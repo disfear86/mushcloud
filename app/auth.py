@@ -25,96 +25,86 @@ def send_mail(subject, sender, recipients, html_body):
     setup_mail(msg)
 
 
-def registration():
+def registration(username, email, password, form):
     try:
-        form = RegistrationForm(request.form)
-        if request.method == "POST" and form.validate():
-            username = form.username.data
-            email = form.email.data
-            password = sha256_crypt.encrypt(form.password.data)
+        # set free account storage volume
+        plan = 2000  # mbytes
+        mb_left = 2000
 
-            # set free account storage volume
-            plan = 2000  # mbytes
-            mb_left = 2000
+        dat = User.query.filter_by(username=username).first()
+        dat_email = User.query.filter_by(email=email).first()
 
-            dat = User.query.filter_by(username=username).first()
-            dat_email = User.query.filter_by(email=email).first()
+        if dat is not None:
+            flash('Username not available.')
+            return redirect(url_for('register.html', form=form))
+        elif dat_email is not None:
+            flash('Email is already in use.')
+            return redirect(url_for('register.html', form=form))
+        else:
+            db.session.add(User(None, username, email, password, plan, mb_left, False))
+            flash('Registration Successful.')
 
-            if dat is not None:
-                flash('Username not available.')
-                return render_template('register.html', form=form)
-            elif dat_email is not None:
-                flash('Email is already in use.')
-                return render_template('register.html', form=form)
-            else:
-                db.session.add(User(None, username, email, password, plan, mb_left, False))
-                flash('Registration Successful.')
+            session['logged_in'] = True
+            session['username'] = username
+            user = session['username']
+            main_path = app.config['USER_STORAGE_PATH']
+            user_path = main_path + user
 
+            # create main user directory
+            mkdir(user_path)
+
+            # create users first folder in main directory
+            mkdir(user_path + '/' + 'My Folder')
+
+            # create personal user table in db
+            class User_folder(db.Model):
+                __tablename__ = user
+                id = db.Column(db.Integer, primary_key=True)
+                name = db.Column(db.String(150))
+                code = db.Column(db.String(150))
+                path = db.Column(db.String(150))
+                date = db.Column(db.String(15))
+                size = db.Column(db.Float)
+
+            db.create_all()
+            path = user_path + '/' + 'My Folder'
+            date = time.strftime("%d/%m/%Y")
+
+            user_table = tablename(user)
+            data = user_table('My Folder', None, path, date, None)
+            db.session.add(data)
+            db.session.commit()
+
+            gc.collect()
+            return redirect(url_for('user_home'))
+
+    except Exception as e:
+        return redirect(url_for('register', error=str(e)))
+
+
+def log_in(user_submit, password):
+    try:
+        data = db.session.query(User.username, User.password). \
+            filter(User.username == user_submit).first()
+
+        if data is None:
+            flash('Invalid Credentials.')
+            return redirect(url_for('login'))
+        else:
+            pwd = data[1]
+            if sha256_crypt.verify(password, pwd):
                 session['logged_in'] = True
-                session['username'] = username
-                user = session['username']
-                main_path = app.config['USER_STORAGE_PATH']
-                user_path = main_path + user
-
-                # create main user directory
-                mkdir(user_path)
-
-                # create users first folder in main directory
-                mkdir(user_path + '/' + 'My Folder')
-
-                # create personal user table in db
-                class User_folder(db.Model):
-                    __tablename__ = user
-                    id = db.Column(db.Integer, primary_key=True)
-                    name = db.Column(db.String(150))
-                    code = db.Column(db.String(150))
-                    path = db.Column(db.String(150))
-                    date = db.Column(db.String(15))
-                    size = db.Column(db.Float)
-
-                db.create_all()
-                path = user_path + '/' + 'My Folder'
-                date = time.strftime("%d/%m/%Y")
-
-                user_table = tablename(user)
-                data = user_table('My Folder', None, path, date, None)
-                db.session.add(data)
-                db.session.commit()
-
+                session['username'] = request.form['username']
+                user = str(session['username'])
+                flash('Hello, ' + user + '!')
                 gc.collect()
                 return redirect(url_for('user_home'))
-
-        return render_template('register.html', form=form)
-
-    except Exception as e:
-        return render_template('register.html', form=form, error=(str(e)))
-
-
-def log_in():
-    error = ''
-    try:
-        if request.method == "POST":
-            user_submit = request.form['username']
-            data = db.session.query(User.username, User.password). \
-                filter(User.username == user_submit).first()
-
-            if data is None:
-                error = 'Invalid Credentials.'
-                return render_template('login.html', error=error)
             else:
-                pwd = data[1]
-                if sha256_crypt.verify(request.form['password'], pwd):
-                    session['logged_in'] = True
-                    session['username'] = request.form['username']
-                    user = str(session['username'])
-                    flash('Hello, ' + user + '!')
-                    gc.collect()
-                    return redirect(url_for('user_home'))
-                else:
-                    error = 'Invalid Credentials.'
-        return render_template("login.html", error=error)
+                flash('Invalid Credentials.')
+                return redirect(url_for('login'))
+
     except Exception as e:
-        return render_template("login.html", error=(str(e)))
+        return redirect(url_for("login_page", error=(str(e))))
 
 
 def change_pass(user):
