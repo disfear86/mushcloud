@@ -1,30 +1,26 @@
 {% extends 'header.html' %}
 
-
 <body>
 {% block body %}
 
 <head>
-	<title>Login</title>
+	<title>Log in</title>
 </head>
 
-<br>
-<div class="container-fluid" align=center>
-	  <form action="/login/" class="form-inline" method="post">
-		<input type="text" class="form-control" placeholder="Username" name="username" value="{{request.form.username}}"/>
-		 <input type="password" class="form-control" placeholder="Password" name="password" value="{{request.form.password}}"/>
-		<input class="btn btn-primary" type="submit" value="Login"/>
-	  </form>
+<div align="middle" class = "container">
+	<h4>Log in</h4>
+	<br>
+	{% from "_formhelpers.html" import render_field %}
+	<form method=post action="/register/">
+		<dl>
+			{{render_field(form.username)}}
+			<p>
+			{{render_field(form.password)}}
+		</dl>
+		<p><input class="btn btn-primary" type=submit value=Register></p>
+	</form>
 
-		<div class="container">
-		<br>
-	   <p>No account? <a role="presentation" class="active" href="/register/">Sign up for a free account</a>.</p>
-
-		 <p><a role="presentation" class="active" href="/forgot_password/">Forgot your password?</a></p>
-
-	  </div>
 </div>
+
 {% endblock %}
 </body>
-
-</html>
