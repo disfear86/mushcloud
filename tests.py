@@ -6,7 +6,7 @@ from app import app, db
 from config import basedir
 from coverage import Coverage
 
-cov = Coverage()
+cov = Coverage(source=['app'], branch=True)
 cov.start()
 
 
@@ -58,6 +58,6 @@ if __name__ == '__main__':
     cov.save()
     print("\n\nCoverage Report:\n")
     cov.report()
-    print("HTML version: " + os.path.join(basedir, "tmp/coverage/index.html"))
-    cov.html_report(directory='tmp/coverage')
+    print("HTML version: " + os.path.join(basedir, "htmlcov/coverage/index.html"))
+    cov.html_report(directory='htmlcov/coverage')
     cov.erase()
