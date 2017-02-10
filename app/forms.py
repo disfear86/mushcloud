@@ -2,6 +2,14 @@ from wtforms import Form, BooleanField, StringField, PasswordField, validators
 from wtforms.validators import DataRequired, Email
 
 
+class LoginForm(Form):
+    username = StringField('Username', [validators.Length(min=4, max=20)])
+    password = PasswordField('Password', [
+        validators.Length(min=6),
+        validators.DataRequired()
+      ])
+
+
 class RegistrationForm(Form):
     username = StringField('Username', [validators.Length(min=4, max=20)])
     email = StringField('Email Address', [
