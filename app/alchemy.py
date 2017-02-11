@@ -21,6 +21,15 @@ class User(db.Model):
         self.mb_left = mb_left
         self.reset_pass = reset_pass
 
+    def get_id(self):
+        return self.id
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return self.active
+
     def get_token(self, expiration=300):
         s = Serializer(app.config['SECRET_KEY'], expiration)
         return s.dumps({'user': self.id}).decode('utf-8')
@@ -38,7 +47,7 @@ class User(db.Model):
         return None
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User {}>'.format(self.username)
 
 
 ############################################################################
