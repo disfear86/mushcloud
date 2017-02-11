@@ -8,6 +8,9 @@ from coverage import Coverage
 from flask_login import current_user
 from flask import request, session
 from app.auth import registration, log_in
+import shutil
+import pdb
+
 
 cov = Coverage(source=['app'], branch=True)
 cov.start()
@@ -15,15 +18,16 @@ cov.start()
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        app.config['TESTING'] = True
-        app.config.from_object('config')
+        app.config.from_object('config.TestConfig')
+        app.config.update(TESTING=True)
         self.app = app
         self.client = self.app.test_client()
         db.create_all()
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()
+        db.drop_all()\
+
 
     def test_db(self):
         user = User(None, 'randomname', 'randemail@host.com', 'randompassword')
@@ -35,36 +39,35 @@ class BaseTestCase(unittest.TestCase):
 class TestCase(BaseTestCase):
     def test_registration(self):
         with self.client:
-            response = self.client.post('register/', data=dict(
+            self.client.post('register/', data=dict(
                 username='mushcloud', email='mushcloud@mushcloud.com',
                 password='mushpass', confirm='mushpass'
             ), follow_redirects=True)
 
             registration(username='mushcloud', email='mushcloud@mushcloud.com',
                             password='mushpass', form=None)
-            #self.assertIn(b'Registration Successful.', response.data)
-            user = User.query.filter_by(email='mushcloud@mushcloud.com').first()
+            # self.assertIn(b'Registration Successful.', response.data)
+            user = User.query.filter_by(username='mushcloud').first()
+            #pdb.set_trace()
             self.assertTrue(user.username == "mushcloud")
             self.assertTrue(str(user) == '<User mushcloud>')
+            self.assertTrue(current_user.is_active())
 
     def test_login(self):
         with self.client:
-            response = self.client.post('login_page/', data=dict(
+            self.client.post('login_page/', data=dict(
                                     username='mushcloud',
-                                    password='mushpass',
+                                    password='mushcloud',
                                 ), follow_redirects=True)
 
             log_in('mushcloud', 'mushpass')
-            assert 'logged_in' in session
             user = User.query.filter_by(username='mushcloud').first()
-            self.assertTrue(user.username == "mushcloud")
-            self.assertTrue(str(user) == '<User mushcloud>')
+            #pdb.set_trace()
+            self.assertTrue(current_user.username == "mushcloud")
+            self.assertTrue(current_user.is_active())
 
 
 '''
-    def test_login(self):
-        pass
-
     def test_create_dir(self):
         pass
 
