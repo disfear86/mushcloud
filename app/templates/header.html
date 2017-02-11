@@ -20,7 +20,7 @@
 
     		<div class="navbar-header">
 				<!-- Logo image/ link to main page if not logged in or user home page if logged in -->
-				{% if not session['logged_in'] %}
+				{% if not g.user.is_authenticated %}
                     <a class="navbar-brand" href="{{ url_for('homepage') }}">
                     	<img style="max-width:35px; margin-top:-1px; color: #F1EA47;" alt="Mushroom Cloud" src="{{ url_for('static',
                             filename='images/mushlogo2.png') }}">
@@ -66,15 +66,15 @@
 				  <div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;"  class="container-fluid">
 					<h5>
 					<!-- Display user settings and logout button if logged in, else display sign in and register -->
-					{% if session['logged_in'] %}
+					{% if g.user.is_authenticated %}
 					<a style="margin-right:5px; color:#F1EA47;" role="presentation" href="/user_settings/"><span class="glyphicon glyphicon-wrench"></span>
-					  {{ session['username'] }}   </a>
+					  {{ current_user.username }}   </a>
 					<a style="color:#F1EA47;" role="presentation" class="active" href="/logout/"><span class="glyphicon glyphicon-off"></span> Log out</a>
 
 					{% else %}
 					<a style="margin-right:5px; color:#F1EA47;" role="presentation" href="/login/"><span class="glyphicon glyphicon-log-in"></span>
 					 Login   </a>
-					
+
 					<a style="color:#F1EA47;" role="presentation" class="active" href="/register/"><span class="glyphicon glyphicon-pencil"></span> Sign up</a>
 					</h5>
 					{% endif %}
