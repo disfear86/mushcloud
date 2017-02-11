@@ -1,12 +1,12 @@
 from flask import render_template, redirect, url_for, jsonify, \
-                    flash, request, session, send_file
+                    flash, request, session, send_file, g
 from werkzeug.exceptions import abort, BadRequestKeyError
 import gc
 
-from app import app
+from app import app, login_manager
 from app.auth import registration, log_in, change_pass, forgot_password, \
                     reset_password
-from app.decorators import login_required
+from flask_login import login_required, current_user
 from app.alchemy import db, User, tablename
 
 from app.file_handling import check_which_folder, ListAll, CreateDir, \
@@ -18,6 +18,11 @@ from passlib.hash import sha256_crypt
 
 
 main_path = app.config['USER_STORAGE_PATH']
+
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 
 # currently unused
@@ -99,6 +104,11 @@ def register():
     return render_template('register.html', form=form)
 
 
+@app.before_request
+def before_request():
+    g.user = current_user
+
+
 @app.route('/login/', methods=['GET', 'POST'])
 def login_page():
     if 'logged_in' in session:
@@ -126,9 +136,10 @@ def rename():
 
 
 @app.route('/search/', methods=['GET', 'POST'])
+@login_required
 def search():
     if request.method == "POST":
-        user = str(session['username'])
+        user = str(current_user.username)
 
         search_data = request.form['search']
         if not search_data:
@@ -160,7 +171,7 @@ def search():
 @login_required
 def user_home(folder=""):
     # aquire session username and path to file
-    user = str(session['username'])
+    user = str(g.user.username)
     home_path = main_path + user
     user_path = home_path + '/' + folder
 
