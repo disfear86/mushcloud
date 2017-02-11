@@ -4,20 +4,22 @@
 {% block body %}
 
 <head>
-	<title>Log in</title>
+	<title>Sign in</title>
 </head>
 
 <div align="middle" class = "container">
-	<h4>Log in</h4>
+	<h4>Sign in</h4>
 	<br>
 	{% from "_formhelpers.html" import render_field %}
-	<form method=post action="/register/">
+	<form name="loginform" method="POST">
 		<dl>
 			{{render_field(form.username)}}
 			<p>
 			{{render_field(form.password)}}
 		</dl>
-		<p><input class="btn btn-primary" type=submit value=Register></p>
+		<p>No account? <a role="presentation" class="active" href="/register/">Sign up for a free account</a>.</p>
+		<p><input class="btn btn-primary" type=submit value="Sign in"></p>
+				<input type=hidden value="{{ next or '' }}" name=next>
 	</form>
 
 </div>
