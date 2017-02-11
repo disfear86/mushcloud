@@ -1,14 +1,17 @@
 """Authentication module for registration, logging in, and changing password"""
 from flask import render_template, redirect, url_for, flash, \
      request, session
+from flask_login import login_user, logout_user, current_user
 from app import app
 from .alchemy import db, User, tablename
 from passlib.hash import sha256_crypt
 import gc
 from os import mkdir
+from os.path import isdir
 from app.decorators import start_thread
 from .forms import RegistrationForm, ChangePwdForm, EnterEmail, ForgotPass
 import time
+import shutil
 from app import mail
 from flask_mail import Message
 
@@ -36,21 +39,25 @@ def registration(username, email, password, form):
 
         if dat is not None:
             flash('Username not available.')
-            return redirect(url_for('register.html', form=form))
+            return redirect(url_for('register', form=form))
         elif dat_email is not None:
             flash('Email is already in use.')
-            return redirect(url_for('register.html', form=form))
+            return redirect(url_for('register', form=form))
         else:
             db.session.add(User(None, username, email, password, plan, mb_left, False))
+
+
+            user = User.query.filter_by(username=username).first()
+
             flash('Registration Successful.')
-
-            session['logged_in'] = True
-            session['username'] = username
-            user = session['username']
+            login_user(user)
+            next = request.args.get('next')
             main_path = app.config['USER_STORAGE_PATH']
-            user_path = main_path + user
+            user_path = main_path + str(user.username)
 
-            # create main user directory
+            # check if directory exists and create main user directory
+            if isdir(user_path):
+                shutil.rmtree(user_path)
             mkdir(user_path)
 
             # create users first folder in main directory
@@ -58,7 +65,7 @@ def registration(username, email, password, form):
 
             # create personal user table in db
             class User_folder(db.Model):
-                __tablename__ = user
+                __tablename__ = str(user.username)
                 id = db.Column(db.Integer, primary_key=True)
                 name = db.Column(db.String(150))
                 code = db.Column(db.String(150))
@@ -70,13 +77,13 @@ def registration(username, email, password, form):
             path = user_path + '/' + 'My Folder'
             date = time.strftime("%d/%m/%Y")
 
-            user_table = tablename(user)
+            user_table = tablename(str(user.username))
             data = user_table('My Folder', None, path, date, None)
             db.session.add(data)
             db.session.commit()
 
             gc.collect()
-            return redirect(url_for('user_home'))
+            return redirect(next or url_for('user_home'))
 
     except Exception as e:
         return redirect(url_for('register', error=str(e)))
@@ -84,21 +91,23 @@ def registration(username, email, password, form):
 
 def log_in(user_submit, password):
     try:
-        data = db.session.query(User.username, User.password). \
-            filter(User.username == user_submit).first()
-
-        if data is None:
+        user = User.query.filter_by(username=user_submit).first()
+        if user is None:
             flash('Invalid Credentials.')
             return redirect(url_for('login'))
         else:
-            pwd = data[1]
+            pwd = user.password
             if sha256_crypt.verify(password, pwd):
-                session['logged_in'] = True
-                session['username'] = request.form['username']
-                user = str(session['username'])
-                flash('Hello, ' + user + '!')
-                gc.collect()
-                return redirect(url_for('user_home'))
+                #session['logged_in'] = True
+                #session['username'] = request.form['username']
+                #user = str(session['username'])
+                login_user(user)
+                flash('Hello, ' + user.username + '!')
+                next = request.args.get('next')
+
+                #gc.collect()
+                #return redirect(request.args.get("next"))
+                return redirect(next or url_for('user_home'))
             else:
                 flash('Invalid Credentials.')
                 return redirect(url_for('login'))
