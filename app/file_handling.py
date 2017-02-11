@@ -12,6 +12,7 @@ import shutil
 
 main_path = app.config['USER_STORAGE_PATH']
 
+
 # check if file or folder is in main or sub folders
 # and set path accordingly
 def check_which_folder(user, user_path, f_name):
@@ -57,7 +58,7 @@ class WriteUserDb(object):
     def __init__(self, user, user_path):
         self.usr = User.query.filter_by(username=user).first()
         self.user_table = tablename(user)
-    
+
     # Initialize get_size and get_uuid to None in case we want to write dir data to db
     def write_obj(self, file_name, file_path, get_date, get_size=None, get_uuid=None):
         self.file_name = file_name
