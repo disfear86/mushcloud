@@ -11,7 +11,7 @@
 	<h4>Register</h4>
 	<br>
 	{% from "_formhelpers.html" import render_field %}
-	<form method=post action="/register/">
+	<form name="registrationform" method="POST">
 		<dl>
 			{{render_field(form.username)}}
 			{{render_field(form.email)}}
@@ -20,6 +20,7 @@
 			{{render_field(form.accept_tos)}}
 		</dl>
 		<p><input class="btn btn-primary" type=submit value=Register></p>
+				<input type=hidden value="{{ next or '' }}" name=next>
 	</form>
 
 </div>
