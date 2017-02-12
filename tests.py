@@ -5,7 +5,7 @@ from app.alchemy import User
 from app import app, db
 from config import basedir
 from coverage import Coverage
-from flask_login import current_user
+from flask_login import current_user, login_user
 from flask import request, session
 from app.auth import registration, log_in
 import shutil
@@ -19,9 +19,11 @@ cov.start()
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
         app.config.from_object('config.TestConfig')
-        app.config.update(TESTING=True)
         self.app = app
         self.client = self.app.test_client()
+        self._ctx = self.app.test_request_context()
+        self._ctx.push()
+
         db.create_all()
 
     def tearDown(self):
@@ -53,18 +55,24 @@ class TestCase(BaseTestCase):
             self.assertTrue(str(user) == '<User mushcloud>')
             self.assertTrue(current_user.is_active())
 
-    def test_login(self):
+    def test_login_logout(self):
         with self.client:
             self.client.post('login_page/', data=dict(
                                     username='mushcloud',
                                     password='mushcloud',
                                 ), follow_redirects=True)
 
-            log_in('mushcloud', 'mushpass')
-            user = User.query.filter_by(username='mushcloud').first()
-            #pdb.set_trace()
+            user = User(None, username='mushcloud', password='mushcloud',
+                        email='mushcloud@mushcloud.com')
+            db.session.add(user)
+            db.session.commit()
+
+            login_user(user)
             self.assertTrue(current_user.username == "mushcloud")
             self.assertTrue(current_user.is_active())
+
+            self.client.post('logout/', follow_redirects=True)
+            self.assertFalse(current_user.is_active)
 
 
 '''
