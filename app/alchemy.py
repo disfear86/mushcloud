@@ -28,7 +28,7 @@ class User(db.Model):
         return True
 
     def is_active(self):
-        return self.active
+        return True
 
     def get_token(self, expiration=300):
         s = Serializer(app.config['SECRET_KEY'], expiration)
