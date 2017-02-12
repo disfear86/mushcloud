@@ -125,7 +125,7 @@ def change_pass(user, old_pwd, new_pwd):
         else:
             flash('Invalid password.')
             return redirect(url_for('user_settings'))
-            flash('yoyo')
+
     except Exception as e:
         return render_template('user_settings.html', error=(str(e)))
 
