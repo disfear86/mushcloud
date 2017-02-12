@@ -6,19 +6,7 @@
 	<title>Settings</title>
 </head>
 
-	<div align="middle" class = "container">
-		<h4>Change Password</h4>
 
-		{% from "_formhelpers.html" import render_field %}
-		<form method=post action="/user_settings/">
-			<dl>
-				{{render_field(form.old_pwd)}}
-				{{render_field(form.new_pwd)}}
-				{{render_field(form.confirm)}}
-			</dl>
-			<p><input class="btn btn-primary" type=submit value=Submit></p>
-		</form>
-	</div>
 
 	<div class="jumbotron">
 	  <h1>Upgrade Your Plan</h1>
@@ -26,6 +14,10 @@
 	  <p><a class="btn btn-primary btn-lg" href="/change_plan/" role="button">Learn more</a></p>
 	</div>
 
+	<div align="middle" class="container">
+		<p><a class="btn btn-primary btn-lg" href="/change_password/">Change Password</a>
+	</div>
+	<p>
 	<div align="center">
 	<button onclick="goBack()" class="btn btn-primary">Go Back</button>
 	</div>
@@ -34,7 +26,7 @@
 		window.history.back();
 	}
 	</script>
-	
+
 {% endblock %}
 </body>
 
