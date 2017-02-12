@@ -59,14 +59,25 @@ def homepage():
 @app.route('/user_settings/', methods=['GET', 'POST'])
 @login_required
 def user_settings():
+    return render_template('user_settings.html')
+
+
+@app.route('/change_password/', methods=['GET', 'POST'])
+def change_pwd():
     user = str(g.user.username)
     form = ChangePwdForm(request.form)
     if request.method == "POST" and form.validate():
         old_pwd = form.old_pwd.data
         new_pwd = sha256_crypt.encrypt(form.new_pwd.data)
-        return change_pass(user, old_pwd, new_pwd)
+        try:
+            change_pass(user, old_pwd, new_pwd)
+            return redirect(url_for('user_home'))
+        except:
+            flash('Invalid password.')
+            return redirect(url_for('user_settings', form=form))
 
-    return render_template('user_settings.html', form=form)
+    return render_template('change_pwd.html', form=form)
+
 
 
 @app.route('/forgot_password/', methods=['GET', 'POST'])
