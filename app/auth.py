@@ -121,13 +121,9 @@ def change_pass(user, old_pwd, new_pwd):
             db.session.commit()
             flash('Password Changed Successfully.')
             gc.collect()
-            return redirect(url_for('user_home'))
-        else:
-            flash('Invalid password.')
-            return redirect(url_for('user_settings'))
 
     except Exception as e:
-        return render_template('user_settings.html', error=(str(e)))
+        return render_template('change_pwd.html', error=(str(e)))
 
 
 def forgot_password():
