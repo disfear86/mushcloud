@@ -46,7 +46,6 @@ def registration(username, email, password, form):
         else:
             db.session.add(User(None, username, email, password, plan, mb_left, False))
 
-
             user = User.query.filter_by(username=username).first()
 
             flash('Registration Successful.')
@@ -98,15 +97,11 @@ def log_in(user_submit, password):
         else:
             pwd = user.password
             if sha256_crypt.verify(password, pwd):
-                #session['logged_in'] = True
-                #session['username'] = request.form['username']
-                #user = str(session['username'])
                 login_user(user)
                 flash('Hello, ' + user.username + '!')
                 next = request.args.get('next')
 
-                #gc.collect()
-                #return redirect(request.args.get("next"))
+                gc.collect()
                 return redirect(next or url_for('user_home'))
             else:
                 flash('Invalid Credentials.')
@@ -116,32 +111,23 @@ def log_in(user_submit, password):
         return redirect(url_for("login_page", error=(str(e))))
 
 
-def change_pass(user):
+def change_pass(user, old_pwd, new_pwd):
     try:
-        form = ChangePwdForm(request.form)
-        if request.method == "POST" and form.validate():
-            old_pwd = form.old_pwd.data
-            new_pwd = sha256_crypt.encrypt(form.new_pwd.data)
+        usr = User.query.filter_by(username=user).first()
+        pwd = usr.password
 
-            data = db.session.query(User.username, User.password). \
-                filter(User.username == user).first()
-
-            usr = User.query.filter_by(username=user).first()
-            pwd = data[1]
-
-            if sha256_crypt.verify(old_pwd, pwd):
-                usr.password = new_pwd
-                db.session.commit()
-                flash('Password Changed Successful.')
-                return redirect(url_for('user_home'))
-            else:
-                flash('Invalid password.')
-                return redirect(url_for('user_settings'))
+        if sha256_crypt.verify(old_pwd, pwd):
+            usr.password = new_pwd
+            db.session.commit()
+            flash('Password Changed Successfully.')
             gc.collect()
-        return render_template('user_settings.html', form=form)
-
+            return redirect(url_for('user_home'))
+        else:
+            flash('Invalid password.')
+            return redirect(url_for('user_settings'))
+            flash('yoyo')
     except Exception as e:
-        return render_template('user_settings.html', form=form, error=(str(e)))
+        return render_template('user_settings.html', error=(str(e)))
 
 
 def forgot_password():

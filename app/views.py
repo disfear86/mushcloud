@@ -13,7 +13,7 @@ from app.file_handling import check_which_folder, ListAll, CreateDir, \
                                     Rename, Upload, Delete
 import os
 from os.path import isdir
-from .forms import RegistrationForm, LoginForm
+from .forms import RegistrationForm, LoginForm, ChangePwdForm
 from passlib.hash import sha256_crypt
 
 
@@ -59,9 +59,14 @@ def homepage():
 @app.route('/user_settings/', methods=['GET', 'POST'])
 @login_required
 def user_settings():
-    user = session['username']
-    return change_pass(user)
-    return render_template('user_settings.html')
+    user = str(g.user.username)
+    form = ChangePwdForm(request.form)
+    if request.method == "POST" and form.validate():
+        old_pwd = form.old_pwd.data
+        new_pwd = sha256_crypt.encrypt(form.new_pwd.data)
+        return change_pass(user, old_pwd, new_pwd)
+
+    return render_template('user_settings.html', form=form)
 
 
 @app.route('/forgot_password/', methods=['GET', 'POST'])
@@ -77,7 +82,7 @@ def reset_pwd(key=""):
 @app.route('/change_plan/', methods=['GET', 'POST'])
 @login_required
 def change_plan():
-    user = session['username']
+    user = str(g.user.username)
     if request.method == "POST" and 'options' in request.form:
         new_plan = request.form['options']
         old_plan = db.session.query(User.plan_mb).filter(User.username == user)
