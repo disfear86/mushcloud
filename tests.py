@@ -18,7 +18,7 @@ cov.start()
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        app.config.from_object('config.TestConfig')
+        app.config.from_object('config')
         self.app = app
         self.client = self.app.test_client()
         self._ctx = self.app.test_request_context()
