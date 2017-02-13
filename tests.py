@@ -7,7 +7,8 @@ from config import basedir
 from coverage import Coverage
 from flask_login import current_user, login_user
 from flask import request, session
-from app.auth import registration, log_in
+from app.auth import registration, change_pass
+from passlib.hash import sha256_crypt
 import shutil
 import pdb
 
@@ -16,9 +17,18 @@ cov = Coverage(source=['app'], branch=True)
 cov.start()
 
 
+def add_user():
+    pwd = sha256_crypt.encrypt('mushpass')
+    user = User(None, username='mushcloud', password=pwd,
+                email='mushcloud@mushcloud.com')
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
-        app.config.from_object('config')
+        app.config.from_object('config.TestConfig')
         self.app = app
         self.client = self.app.test_client()
         self._ctx = self.app.test_request_context()
@@ -32,9 +42,7 @@ class BaseTestCase(unittest.TestCase):
 
 
     def test_db(self):
-        user = User(None, 'randomname', 'randemail@host.com', 'randompassword')
-        db.session.add(user)
-        db.session.commit()
+        user = add_user()
         assert user in db.session
 
 
@@ -46,11 +54,13 @@ class TestCase(BaseTestCase):
                 password='mushpass', confirm='mushpass'
             ), follow_redirects=True)
 
+            pwd = sha256_crypt.encrypt('mushpass')
+
             registration(username='mushcloud', email='mushcloud@mushcloud.com',
-                            password='mushpass', form=None)
-            # self.assertIn(b'Registration Successful.', response.data)
-            user = User.query.filter_by(username='mushcloud').first()
+                            password=pwd, form=None)
             #pdb.set_trace()
+            user = User.query.filter_by(username='mushcloud').first()
+
             self.assertTrue(user.username == "mushcloud")
             self.assertTrue(str(user) == '<User mushcloud>')
             self.assertTrue(current_user.is_active())
@@ -59,23 +69,31 @@ class TestCase(BaseTestCase):
         with self.client:
             self.client.post('login_page/', data=dict(
                                     username='mushcloud',
-                                    password='mushcloud',
+                                    password='mushpass',
                                 ), follow_redirects=True)
 
-            user = User(None, username='mushcloud', password='mushcloud',
-                        email='mushcloud@mushcloud.com')
-            db.session.add(user)
-            db.session.commit()
-
+            user = add_user()
             login_user(user)
+
             self.assertTrue(current_user.username == "mushcloud")
             self.assertTrue(current_user.is_active())
-
             self.client.post('logout/', follow_redirects=True)
             self.assertFalse(current_user.is_active)
 
+    def test_change_pwd(self):
+        with self.client:
+            self.client.post('change_pwd/', data=dict(
+                                    old_pwd='mushpass',
+                                    new_pwd='newpass',
+                                    confirm='newpass'
+                                ), follow_redirects=True)
+            user = add_user()
+            print(user.password)
+            change_pass(user=user, old_pwd='mushpass', new_pwd='newpass')
+            print(user.password)
 
-'''
+            self.assertTrue(sha256_crypt.verify('newpass', user.password))
+
     def test_create_dir(self):
         pass
 
@@ -90,7 +108,6 @@ class TestCase(BaseTestCase):
 
     def test_change_plan(self):
         pass
-'''
 
 if __name__ == '__main__':
     try:
