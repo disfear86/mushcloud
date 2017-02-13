@@ -64,20 +64,20 @@ def user_settings():
 
 @app.route('/change_password/', methods=['GET', 'POST'])
 def change_pwd():
-    user = str(g.user.username)
+    user = g.user
     form = ChangePwdForm(request.form)
     if request.method == "POST" and form.validate():
         old_pwd = form.old_pwd.data
-        new_pwd = sha256_crypt.encrypt(form.new_pwd.data)
+        new_pwd = form.new_pwd.data
         try:
             change_pass(user, old_pwd, new_pwd)
+            gc.collect()
             return redirect(url_for('user_home'))
         except:
             flash('Invalid password.')
             return redirect(url_for('user_settings', form=form))
 
     return render_template('change_pwd.html', form=form)
-
 
 
 @app.route('/forgot_password/', methods=['GET', 'POST'])
