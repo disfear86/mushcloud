@@ -88,9 +88,7 @@ class TestCase(BaseTestCase):
                                     confirm='newpass'
                                 ), follow_redirects=True)
             user = add_user()
-            print(user.password)
             change_pass(user=user, old_pwd='mushpass', new_pwd='newpass')
-            print(user.password)
 
             self.assertTrue(sha256_crypt.verify('newpass', user.password))
 
