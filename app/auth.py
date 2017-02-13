@@ -112,18 +112,10 @@ def log_in(user_submit, password):
 
 
 def change_pass(user, old_pwd, new_pwd):
-    try:
-        usr = User.query.filter_by(username=user).first()
-        pwd = usr.password
-
-        if sha256_crypt.verify(old_pwd, pwd):
-            usr.password = new_pwd
-            db.session.commit()
-            flash('Password Changed Successfully.')
-            gc.collect()
-
-    except Exception as e:
-        return render_template('change_pwd.html', error=(str(e)))
+    if sha256_crypt.verify(old_pwd, user.password):
+        user.password = sha256_crypt.encrypt(new_pwd)
+        db.session.commit()
+        flash('Password Changed Successfully.')
 
 
 def forgot_password():
