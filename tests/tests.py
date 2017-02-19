@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import unittest
+import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from app.alchemy import User
