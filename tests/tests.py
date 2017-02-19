@@ -15,7 +15,7 @@ import shutil
 import pdb
 
 
-cov = Coverage(source=['app'], branch=True)
+cov = Coverage(source=['app'], branch=True, omit=['app/forms.py', 'app/decorators.py'])
 cov.start()
 
 
@@ -40,7 +40,7 @@ class BaseTestCase(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()\
+        db.drop_all()
 
 
     def test_db(self):
