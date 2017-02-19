@@ -8,11 +8,11 @@ I'm fairly new to web development so any input or advice is greatly appreciated.
 
 Requirements:
 
-`pip install -r requirements.txt`
+`pip3 install -r requirements.txt`
 
 You will also need a Mysql connector (I used mysqlclient and it works great with Python 3.5) and bootstrap 3 installed.
 
-`pip install mysqlclient`
+`pip3 install mysqlclient`
 
 For more info and docs visit [mysqlclient github repo](https://github.com/PyMySQL/mysqlclient-python)
 
