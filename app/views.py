@@ -210,13 +210,12 @@ def user_home(folder=""):
 
         # upload new file
         if request.method == 'POST' and 'newfile' in request.files:
-            if 'newfile' not in request.files:
-                flash('No file part')
-                return redirect(request.url)
             up_file = request.files['newfile']
-
-            newfile_obj = Upload(user, user_path, up_file)
-            newfile_obj.file_upload()
+            if up_file.filename == '':
+                flash('No file selected.')
+            else:
+                newfile_obj = Upload(user, user_path, up_file)
+                newfile_obj.file_upload()
 
             gc.collect()
             if not folder:
