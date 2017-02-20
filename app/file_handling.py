@@ -123,12 +123,9 @@ class Upload(FileHandle):
         self.up_file = up_file
 
     def file_upload(self):
-        if self.up_file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-
         if not allowed_file(self.up_file.filename):
             flash('File type not allowed.')
+            return redirect(request.url)
 
         if self.up_file and allowed_file(self.up_file.filename):
             # generate uuid for file
