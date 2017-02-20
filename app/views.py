@@ -75,7 +75,7 @@ def change_pwd():
             return redirect(url_for('user_home'))
         except:
             flash('Invalid password.')
-            return redirect(url_for('user_settings', form=form))
+            return redirect(url_for('change_pwd', form=form))
 
     return render_template('change_pwd.html', form=form)
 
@@ -281,7 +281,6 @@ def user_home(folder=""):
                                user_plan_left=user_plan_left[0][0])
     except Exception as e:
         error = e
-        #flash(error)
         return redirect(url_for('user_home', error=error))
 
 
