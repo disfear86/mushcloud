@@ -261,15 +261,17 @@ class Delete(FileHandle):
         else:
             del_path = self.user_path + '/' + self.d[0]
 
-        query = self.user_table.query.all()
+        query = db.session.query(self.user_table.path).all()
 
+        # regex to split query results between quotes
         quotes = re.compile("'[^']*'")
-        data = [val[1:-1] for val in quotes.findall(str(query))[1::2]]
+        # create list with individual db entries
+        data = [val[1:-1] for val in quotes.findall(str(query))]
 
-        # search and delete any db entries that belong to folder
+        # search and delete any db entries that belong to the folder
         # to be deleted
         for entry in data:
-            if self.d[0] in entry:
+            if del_path in entry:
                 self.user_table.query.filter(self.user_table.path == entry).delete()
         db.session.commit()
 
