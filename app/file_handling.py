@@ -94,11 +94,11 @@ class ListAll(FileHandle):
         for f in listdir(self.user_path):
             if isfile(join(self.user_path, f)):
                 extension = (os.path.splitext(f)[1][1:]).lower()
-                date_data = db.session.query(self.user_table.name, self.user_table.date).filter(self.user_table.path == (join(self.user_path, f)))
+                file_data = db.session.query(self.user_table.name, self.user_table.date).filter(self.user_table.path == (join(self.user_path, f)))
 
-                if date_data is not None:
-                    file_date = date_data[0][1]
-                    file_name = date_data[0][0]
+                if file_data is not None:
+                    file_date = file_data[0][1]
+                    file_name = file_data[0][0]
                     f_data = [f, extension, file_date, file_name]
                     allfiles.append(f_data)
 
@@ -174,15 +174,12 @@ class Upload(FileHandle):
 
 class CreateDir(FileHandle):
     """Create new directory."""
-    def __init__(self, user, user_path):
+    def __init__(self, user, user_path, folder_name):
         super(CreateDir, self).__init__(user, user_path)
+        self.folder_name = folder_name
 
     def create(self):
-        folder_name = request.form['newfolder']
-        if folder_name == '':
-            flash('No folder name given.')
-            return redirect(request.url)
-        folder_path = check_which_folder(self.user, self.user_path, folder_name)
+        folder_path = check_which_folder(self.user, self.user_path, self.folder_name)
 
         if isdir(str(folder_path)):
             flash('Folder already exists')
@@ -194,9 +191,9 @@ class CreateDir(FileHandle):
             # flash(user_path)
             # insert folder data into user table
             write_f = WriteUserDb(self.user, self.user_path)
-            write_f.write_obj(folder_name, folder_path, get_date)
+            write_f.write_obj(self.folder_name, folder_path, get_date)
 
-            flash("Folder '" + folder_name + "' was created successfully.")
+            flash("Folder '" + self.folder_name + "' was created successfully.")
 
 
 class Rename(FileHandle):
