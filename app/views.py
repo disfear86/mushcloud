@@ -225,7 +225,10 @@ def user_home(folder=""):
 
         # create new folder
         if request.method == 'POST' and 'newfolder' in request.form:
-            folder_obj = CreateDir(user, user_path)
+            folder_name = request.form['newfolder']
+            if folder_name == '':
+                flash('No folder name given.')
+            folder_obj = CreateDir(user, user_path, folder_name)
             folder_obj.create()
 
             gc.collect()
@@ -243,6 +246,9 @@ def user_home(folder=""):
 
                     flash("File " + DelData.del_data + " has been deleted.")
                     gc.collect()
+                    # reset del_data to avoid deleting file with same filename
+                    # in different directory
+                    DelData.del_data = ''
                     if not folder:
                         return redirect(url_for('user_home'))
                     else:
@@ -254,6 +260,9 @@ def user_home(folder=""):
 
                     flash("Folder '{}' has been deleted.".format(d[0]))
                     gc.collect()
+                    # reset del_data to avoid deleting directory with same name
+                    # in different parent directory
+                    DelData.del_data = ''
                     if not folder:
                         return redirect(url_for('user_home'))
                     else:
