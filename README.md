@@ -11,7 +11,7 @@ Requirements:
 
 `pip install -r requirements.txt`
 
-You will also need a Mysql connector (I used mysqlclient and it works great with Python 3.5) and bootstrap 3 installed.
+You will need a Mysql connector (I used mysqlclient and it works great with Python 3.5) and the bootstrap 3 javascript files added to the [app/static/js](https://github.com/disfear86/mushcloud/tree/master/app/static/js) directory.
 
 `pip install mysqlclient`
 
