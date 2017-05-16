@@ -3,8 +3,6 @@ A cloud storage web app created with Flask and Bootstrap.
 
 This is a flask web app I created to implement what I've learnt so far in Python and Flask.
 
-I'm fairly new to web development so any input or advice is greatly appreciated.
-
 The application is compatible with both Python 2 and Python 3.
 
 Requirements:
